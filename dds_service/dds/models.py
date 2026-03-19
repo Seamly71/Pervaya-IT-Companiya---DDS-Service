@@ -15,78 +15,119 @@ DDS_COMMENT_MAX_LENGTH = 2000
 class DDSStatus(models.Model):
     name = models.CharField(
         unique=True,
-        max_length=DDS_STATUS_NAME_MAX_LENGTH
+        max_length=DDS_STATUS_NAME_MAX_LENGTH,
+        verbose_name='Название'
     )
+
+    class Meta:
+        verbose_name = 'ДДС статус'
+        verbose_name_plural = 'ДДС статусы'
+
+    def __str__(self):
+        return self.name
 
 
 class DDSType(models.Model):
     name = models.CharField(
         unique=True,
-        max_length=DDS_TYPE_NAME_MAX_LENGTH
+        max_length=DDS_TYPE_NAME_MAX_LENGTH,
+        verbose_name='Название'
     )
+
+    class Meta:
+        verbose_name = 'ДДС тип'
+        verbose_name_plural = 'ДДС типы'
+
+    def __str__(self):
+        return self.name
 
 
 class DDSCategory(models.Model):
     name = models.CharField(
         unique=True,
-        max_length=DDS_CATEGORY_NAME_MAX_LENGTH
+        max_length=DDS_CATEGORY_NAME_MAX_LENGTH,
+        verbose_name='Название'
     )
     parent_type = models.ForeignKey(
         DDSType,
         on_delete=models.CASCADE,
         to_field='name',
-        related_name='categories'
+        related_name='categories',
+        verbose_name='Родительский тип'
     )
+
+    class Meta:
+        verbose_name = 'ДДС категория'
+        verbose_name_plural = 'ДДС категории'
+
+    def __str__(self):
+        return self.name
 
 
 class DDSSubcategory(models.Model):
     name = models.CharField(
         unique=True,
-        max_length=DDS_SUBCATEGORY_NAME_MAX_LENGTH
+        max_length=DDS_SUBCATEGORY_NAME_MAX_LENGTH,
+        verbose_name='Название'
     )
     parent_category = models.ForeignKey(
         DDSCategory,
         on_delete=models.CASCADE,
         to_field='name',
-        related_name='subcategories'
+        related_name='subcategories',
+        verbose_name='Родительская категория'
     )
+
+    class Meta:
+        verbose_name = 'ДДС подкатегория'
+        verbose_name_plural = 'ДДС подкатегории'
+
+    def __str__(self):
+        return self.name
 
 
 class DDSEntry(models.Model):
     created_at = models.DateField(
         null=True,
         blank=True,
-        default=now
+        default=now,
+        verbose_name='Дата создания'
     )
     status = models.ForeignKey(
         DDSStatus,
         null=True,
         blank=True,
         on_delete=models.RESTRICT,
-        to_field='name'
+        to_field='name',
+        verbose_name='Статус'
     )
     type = models.ForeignKey(
         DDSType,
         on_delete=models.RESTRICT,
-        to_field='name'
+        to_field='name',
+        verbose_name='Тип'
     )
     category = models.ForeignKey(
         DDSCategory,
         on_delete=models.RESTRICT,
-        to_field='name'
+        to_field='name',
+        verbose_name='Категория'
     )
     subcategory = models.ForeignKey(
         DDSSubcategory,
         on_delete=models.RESTRICT,
-        to_field='name'
+        to_field='name',
+        verbose_name='Подкатегория'
     )
     sum = models.DecimalField(
         max_digits=DDS_SUM_MAX_DIGITS,
-        decimal_places=DDS_SUM_DECIMAL_PLACES
+        decimal_places=DDS_SUM_DECIMAL_PLACES,
+        verbose_name='Сумма'
     )
     comment = models.TextField(
         blank=True,
-        max_length=DDS_COMMENT_MAX_LENGTH
+        max_length=DDS_COMMENT_MAX_LENGTH,
+        verbose_name='Комментарий'
     )
 
     def full_clean(self, exclude=None, validate_unique=True, validate_constraints=True):
@@ -94,14 +135,19 @@ class DDSEntry(models.Model):
 
         if self.subcategory.parent_category != self.category:
             raise ValidationError(
-                f'Entries subcategory - {self.subcategory} '
-                f'and category - {self.category} are not conforming.'
+                f'Подкатегория записи - {self.subcategory} '
+                f'и ее категория - {self.category} не согласованы.'
             )
         if self.category.parent_type != self.type:
             raise ValidationError(
-                f'Entries category - {self.category} '
-                f'and type - {self.type} are not conforming.'
+                f'Категория записи - {self.category} '
+                f'и ее тип - {self.type} не согласованы.'
             )
 
     class Meta:
         default_related_name = 'entries'
+        verbose_name = 'ДДС запись'
+        verbose_name_plural = 'ДДС записи'
+
+    def __str__(self):
+        return f'{self.created_at}: {self.sum}'
