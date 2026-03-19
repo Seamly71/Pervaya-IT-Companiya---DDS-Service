@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+  Типы ДДС
+{% endblock %}
+
+{% block content %}
+  <div class="col d-flex justify-content-center">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Название</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for type in ddstype_list %}
+          <tr>
+            <th scope="row">{{ type.id }}</th>
+            <td>{{ type.name }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <h1>{% url 'mam'%}</h1>
+  </div>
+{% endblock %}

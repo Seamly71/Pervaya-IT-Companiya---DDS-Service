@@ -1,0 +1,17 @@
+volumes:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:18.0
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  backend:
+    build: dds_service
+    env_file: .env
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
